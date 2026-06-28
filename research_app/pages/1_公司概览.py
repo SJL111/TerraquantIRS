@@ -75,13 +75,7 @@ info = get_info(selected)
 company_name = info.get("longName") or meta["name"]
 tier_color   = TIER_COLORS.get(tier, "#adb5bd")
 
-st.markdown(
-    f"<h2 style='margin-bottom:0'>{selected} &nbsp;"
-    f"<span style='font-size:0.55em; background:{tier_color}22; color:{tier_color}; "
-    f"border:1px solid {tier_color}; border-radius:4px; padding:2px 8px;'>"
-    f"{TIER_LABELS.get(tier, tier)}</span></h2>",
-    unsafe_allow_html=True,
-)
+st.markdown(f"<h2 style='margin-bottom:0'>{selected}</h2>", unsafe_allow_html=True)
 st.markdown(f"**{company_name}** · {meta['sector']} · {meta['note']}")
 st.divider()
 

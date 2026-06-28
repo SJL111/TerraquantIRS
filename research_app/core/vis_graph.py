@@ -61,10 +61,6 @@ def build_full_map_html(chain: dict, active_tiers: set[str] | None = None, heigh
         nodes_data.append({
             "id":          ticker,
             "label":       ticker,
-            "title":       (f"{ticker} — {meta['name']}\n"
-                           f"{TIER_LABELS.get(tier, tier)}\n"
-                           f"{meta.get('sector','')}\n"
-                           f"{meta.get('note','')}"),
             "color":       {"background": color, "border": border_color},
             "font":        {"color": "#111", "size": font_size, "bold": is_focal},
             "size":        38 if is_focal else 22,
@@ -239,14 +235,16 @@ network.on('hoverNode', function(p){{
   }});
   network.redraw();
 
-  // edge highlight
-  edges.update(edges.get().map(function(e){{
-    if(ceSet.has(e.id)){{
-      return {{id:e.id,color:{{color:eMeta[e.id].color,inherit:false,opacity:1}},width:3.0}};
-    }}else{{
-      return {{id:e.id,color:{{color:'#e0e0ea',inherit:false,opacity:0.1}},width:0.5}};
-    }}
-  }}));
+  // defer edge update so it runs after Vis.js's own hover render pass
+  setTimeout(function(){{
+    edges.update(edges.get().map(function(e){{
+      if(ceSet.has(e.id)){{
+        return {{id:e.id,color:{{color:eMeta[e.id].color,inherit:false,opacity:1}},width:3.0}};
+      }}else{{
+        return {{id:e.id,color:{{color:'#e0e0ea',inherit:false,opacity:0.1}},width:0.5}};
+      }}
+    }}));
+  }},30);
 }});
 
 network.on('blurNode', function(){{
@@ -318,7 +316,6 @@ def build_mini_map_html(focal_ticker: str, chain: dict, height: int = 360) -> st
         return {
             "id":    ticker,
             "label": ticker,
-            "title": f"{ticker} — {meta.get('name', ticker)}\n{meta.get('note','')}",
             "x": x, "y": y,
             "color":       {"background": color, "border": "#222" if is_f else "#fff"},
             "font":        {"color": "#111", "size": 16 if is_f else 12, "bold": is_f},
@@ -507,14 +504,16 @@ network.on('hoverNode', function(p){{
   }});
   network.redraw();
 
-  edges.update(edges.get().map(function(e){{
-    var eid = e.id || (e.from+'___'+e.to);
-    if(ceSet.has(e.id)){{
-      return {{id:e.id,color:{{color:(eMeta[eid]&&eMeta[eid].color)||'#aaa',inherit:false,opacity:1}},width:3.0}};
-    }}else{{
-      return {{id:e.id,color:{{color:'#e0e0ea',inherit:false,opacity:0.1}},width:0.5}};
-    }}
-  }}));
+  setTimeout(function(){{
+    edges.update(edges.get().map(function(e){{
+      var eid = e.id || (e.from+'___'+e.to);
+      if(ceSet.has(e.id)){{
+        return {{id:e.id,color:{{color:(eMeta[eid]&&eMeta[eid].color)||'#aaa',inherit:false,opacity:1}},width:3.0}};
+      }}else{{
+        return {{id:e.id,color:{{color:'#e0e0ea',inherit:false,opacity:0.1}},width:0.5}};
+      }}
+    }}));
+  }},30);
 }});
 
 network.on('blurNode', function(){{

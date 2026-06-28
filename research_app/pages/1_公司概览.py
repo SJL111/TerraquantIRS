@@ -237,11 +237,11 @@ st.caption("左：上游供应商 · 右：下游客户 · 下方：竞争对手
 
 from core.vis_graph import build_mini_map_payload
 from components.vis_map import render_vis_map
-from core.nav import handle_map_click, map_component_key
+from core.nav import handle_map_click
 
 mini_payload = build_mini_map_payload(selected, chain, height=370)
-clicked = render_vis_map(mini_payload, height=370, key=map_component_key(f"mini_{selected}"))
-handle_map_click(clicked, prefix=f"mini_{selected}", skip=selected)
+clicked = render_vis_map(mini_payload, height=370, key=f"mini_{selected}")
+handle_map_click(clicked, skip=selected)
 
 # ── Supply chain neighbors (text fallback) ────────────────────────────────────
 from core.supply_chain import get_neighbors

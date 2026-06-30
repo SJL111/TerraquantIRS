@@ -123,7 +123,7 @@ If you have **Futu OpenD** installed and running on `localhost:11111`, the app a
 | Segment revenue | SEC 10-K text parsing | Regex extraction from MD&A section |
 | Customer concentration | SEC 10-K text parsing | Extracted from risk factor disclosures |
 | Supply chain relationships | `supply_chain.json` | Manually curated, editable in-app |
-| 10-K / 10-Q filings (local) | `sec_workflow.py` | AMD, NVDA, MU, SNDK (10-K/Q); TSM (20-F); gitignored |
+| 10-K / 10-Q filings (local) | `sec_workflow.py` | AMD, NVDA, MU, SNDK, STX, WDC (10-K/Q); TSM (20-F); gitignored |
 
 ---
 
@@ -165,6 +165,8 @@ No server rental or environment configuration needed.
 | TSMC | TSM | Primary foundry (N3/N4 process) |
 | Micron | MU | HBM / DRAM / NAND — memory supplier (CMBU cloud & HBM) |
 | Sandisk | SNDK | NAND flash / enterprise SSD (WDC spin-off, Feb 2025) |
+| Seagate | STX | HDD — nearline / mass-capacity cloud storage |
+| Western Digital | WDC | HDD (post-SNDK spin-off) |
 | Amkor | AMKR | Advanced chip packaging |
 | ASML | ASML | EUV lithography (equipment) |
 | Applied Materials | AMAT | CVD/PVD deposition (equipment) |

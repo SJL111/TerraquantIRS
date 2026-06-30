@@ -29,6 +29,8 @@ KNOWN_SEGMENTS: dict[str, list[str]] = {
     "NVDA": ["Compute & Networking", "Graphics"],
     "MU":   ["CMBU", "CDBU", "MCBU", "AEBU"],
     "SNDK": ["Cloud", "Client", "Consumer"],
+    "STX":  ["OEMs", "Distributors", "Retailers"],
+    "WDC":  ["Cloud", "Client", "Consumer"],
     "INTC": ["CCG", "DCG", "IOTG", "Mobileye", "PSG", "NEX", "Intel Foundry"],
     "QCOM": ["QCT", "QTL"],
     "AVGO": ["Semiconductor Solutions", "Infrastructure Software"],
@@ -47,6 +49,16 @@ SEGMENT_DISPLAY: dict[str, dict[str, str]] = {
         "Cloud":    "Cloud (data center SSD)",
         "Client":   "Client (OEM / PC / mobile)",
         "Consumer": "Consumer (retail flash)",
+    },
+    "STX": {
+        "OEMs":         "OEMs (cloud & enterprise)",
+        "Distributors": "Distributors",
+        "Retailers":    "Retailers",
+    },
+    "WDC": {
+        "Cloud":    "Cloud (data center HDD)",
+        "Client":   "Client (OEM / PC)",
+        "Consumer": "Consumer (retail HDD)",
     },
 }
 

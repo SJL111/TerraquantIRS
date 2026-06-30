@@ -37,6 +37,8 @@ COMPANY_PATTERNS: list[tuple[str, str, str]] = [
     # Memory / Components
     (r"Micron Technology|Micron\b",                              "MU",        "upstream"),
     (r"Sandisk Corporation|SanDisk|Sandisk\b",                 "SNDK",      "upstream"),
+    (r"Seagate Technology|Seagate\b",                            "STX",       "upstream"),
+    (r"Western Digital|Western Digital Corporation|\bWDC\b",     "WDC",       "upstream"),
     (r"SK Hynix|SK\.Hynix",                                      "000660.KS", "upstream"),
     # Packaging (OSAT)  → AMD sources packaging FROM them
     (r"Amkor Technology|Amkor\b",                                "AMKR",      "upstream"),

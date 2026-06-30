@@ -1,6 +1,6 @@
 """Generic SEC filing workflow — download filings for any ticker.
 
-US issuers (AMD, NVDA, MU):  10-Q + 10-K
+US issuers (AMD, NVDA, MU, SNDK):  10-Q + 10-K
 Foreign issuers (TSM):   6-K + 20-F  (ADR / FPI)
 
 Usage:

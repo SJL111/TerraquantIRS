@@ -28,6 +28,7 @@ KNOWN_SEGMENTS: dict[str, list[str]] = {
     # FY2024+ (post-reorganisation): two reportable segments
     "NVDA": ["Compute & Networking", "Graphics"],
     "MU":   ["CMBU", "CDBU", "MCBU", "AEBU"],
+    "SNDK": ["Cloud", "Client", "Consumer"],
     "INTC": ["CCG", "DCG", "IOTG", "Mobileye", "PSG", "NEX", "Intel Foundry"],
     "QCOM": ["QCT", "QTL"],
     "AVGO": ["Semiconductor Solutions", "Infrastructure Software"],
@@ -41,6 +42,11 @@ SEGMENT_DISPLAY: dict[str, dict[str, str]] = {
         "CDBU": "Core Data Center (CDBU)",
         "MCBU": "Mobile & Client (MCBU)",
         "AEBU": "Automotive & Embedded (AEBU)",
+    },
+    "SNDK": {
+        "Cloud":    "Cloud (data center SSD)",
+        "Client":   "Client (OEM / PC / mobile)",
+        "Consumer": "Consumer (retail flash)",
     },
 }
 

@@ -36,6 +36,7 @@ COMPANY_PATTERNS: list[tuple[str, str, str]] = [
     (r"Arm Holdings|Arm Limited|\bARM\b|Arm architecture",       "ARM",       "upstream_t2"),
     # Memory / Components
     (r"Micron Technology|Micron\b",                              "MU",        "upstream"),
+    (r"Sandisk Corporation|SanDisk|Sandisk\b",                 "SNDK",      "upstream"),
     (r"SK Hynix|SK\.Hynix",                                      "000660.KS", "upstream"),
     # Packaging (OSAT)  → AMD sources packaging FROM them
     (r"Amkor Technology|Amkor\b",                                "AMKR",      "upstream"),

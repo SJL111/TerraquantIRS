@@ -31,8 +31,7 @@ KNOWN_SEGMENTS: dict[str, list[str]] = {
     "SNDK": ["Cloud", "Client", "Consumer"],
     "STX":  ["OEMs", "Distributors", "Retailers"],
     "WDC":  ["Cloud", "Client", "Consumer"],
-    "INTC": ["CCG", "DCG", "IOTG", "Mobileye", "PSG", "NEX", "Intel Foundry"],
-    "QCOM": ["QCT", "QTL"],
+    "QCOM": ["QCT: Revenues", "QTL: Revenues"],
     "AVGO": ["Semiconductor Solutions", "Infrastructure Software"],
     "TSM":  ["Wafer", "Mask", "Others"],  # legacy; platform breakdown parsed separately if needed
 }
@@ -59,6 +58,20 @@ SEGMENT_DISPLAY: dict[str, dict[str, str]] = {
         "Cloud":    "Cloud (data center HDD)",
         "Client":   "Client (OEM / PC)",
         "Consumer": "Consumer (retail HDD)",
+    },
+    "INTC": {
+        "CCG":           "Client Computing (CCG)",
+        "DCAI":          "Data Center & AI (DCAI)",
+        "Intel Foundry": "Intel Foundry",
+        "All Other":     "All Other (incl. Mobileye)",
+    },
+    "QCOM": {
+        "QCT: Revenues": "QCT (chipsets)",
+        "QTL: Revenues": "QTL (licensing)",
+    },
+    "ARM": {
+        "License and Other Revenue": "License & other",
+        "Royalty Revenue":             "Royalty",
     },
 }
 
@@ -159,6 +172,64 @@ def _parse_segments(text: str, segments: list[str]) -> pd.DataFrame:
             rows.append({"segment": seg, "fy0": best_vals[0], "fy1": best_vals[1], "fy2": best_vals[2]})
 
     return pd.DataFrame(rows) if rows else pd.DataFrame()
+
+
+def _parse_intel_segments(text: str) -> pd.DataFrame:
+    """
+    Intel FY2025+ segment table: columns CCG | DCAI | Total | Intel Foundry | All Other.
+    Each fiscal year is a 'Revenue $ …' row with five dollar amounts.
+    """
+    pat = re.compile(
+        r"Revenue\s+\$\s*([\d,]+)\s+\$\s*([\d,]+)\s+\$\s*([\d,]+)\s+\$\s*([\d,]+)\s+\$\s*([\d,]+)"
+    )
+    year_rows: list[list[int]] = []
+    for m in pat.finditer(text):
+        vals = [int(v.replace(",", "")) for v in m.groups()]
+        if vals[2] > 40_000:          # Total Intel Products sanity check
+            year_rows.append(vals)
+    if len(year_rows) < 3:
+        return pd.DataFrame()
+
+    segments = ["CCG", "DCAI", "Intel Foundry", "All Other"]
+    col_idx  = [0, 1, 3, 4]
+    rows = [
+        {"segment": seg, "fy0": year_rows[0][i], "fy1": year_rows[1][i], "fy2": year_rows[2][i]}
+        for seg, i in zip(segments, col_idx)
+    ]
+    return pd.DataFrame(rows)
+
+
+def _parse_arm_segments(text: str) -> pd.DataFrame:
+    """ARM 20-F: License and Other Revenue + Royalty Revenue (total column, 3 fiscal years)."""
+    combined = re.search(
+        r"License and Other Revenue\s+\$\s*([\d,]+)\s+\$\s*([\d,]+)\s+\$\s*([\d,]+)\s+"
+        r"Royalty Revenue\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)",
+        text,
+        re.IGNORECASE,
+    )
+    if combined:
+        lic = [int(v.replace(",", "")) for v in combined.group(1, 2, 3)]
+        roy = [int(v.replace(",", "")) for v in combined.group(4, 5, 6)]
+    else:
+        lic_m = re.search(
+            r"License and Other Revenue(?:[^$]*\$\s*[\d,]+\s*){6}\$\s*([\d,]+)\s+\$\s*([\d,]+)\s+\$\s*([\d,]+)",
+            text,
+            re.IGNORECASE,
+        )
+        roy_m = re.search(
+            r"Royalty Revenue(?:\s+[\d,]+){6}\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)",
+            text,
+            re.IGNORECASE,
+        )
+        if not lic_m or not roy_m:
+            return pd.DataFrame()
+        lic = [int(v.replace(",", "")) for v in lic_m.groups()]
+        roy = [int(v.replace(",", "")) for v in roy_m.groups()]
+
+    return pd.DataFrame([
+        {"segment": "License and Other Revenue", "fy0": lic[0], "fy1": lic[1], "fy2": lic[2]},
+        {"segment": "Royalty Revenue",           "fy0": roy[0], "fy1": roy[1], "fy2": roy[2]},
+    ])
 
 
 def _infer_fy_years(text: str) -> tuple[int, int, int]:
@@ -318,10 +389,16 @@ def get_concentration_data(
         return {"segments": pd.DataFrame(), "fy_years": (), "concentration": [], "geo": pd.DataFrame()}
 
     text         = _extract_main_doc(raw_text)
-    seg_names    = KNOWN_SEGMENTS.get(ticker.upper(), [])
-    segments_df  = _parse_segments(text, seg_names) if seg_names else pd.DataFrame()
+    ticker_u     = ticker.upper()
+    if ticker_u == "INTC":
+        segments_df = _parse_intel_segments(text)
+    elif ticker_u == "ARM":
+        segments_df = _parse_arm_segments(text)
+    else:
+        seg_names   = KNOWN_SEGMENTS.get(ticker_u, [])
+        segments_df = _parse_segments(text, seg_names) if seg_names else pd.DataFrame()
     if not segments_df.empty:
-        labels = SEGMENT_DISPLAY.get(ticker.upper(), {})
+        labels = SEGMENT_DISPLAY.get(ticker_u, {})
         if labels:
             segments_df["segment"] = segments_df["segment"].map(lambda s: labels.get(s, s))
     fy_years     = _infer_fy_years(text)

@@ -1,7 +1,7 @@
 """Generic SEC filing workflow — download filings for any ticker.
 
-US issuers (AMD, NVDA, MU, SNDK, STX, WDC):  10-Q + 10-K
-Foreign issuers (TSM):   6-K + 20-F  (ADR / FPI)
+US issuers (AMD, NVDA, MU, INTC, QCOM, ADI, TXN, …):  10-Q + 10-K
+Foreign issuers (TSM, ARM, ASML, ASX, STM, UMC, TSEM, GFS, NOK):  6-K + 20-F  (ADR / FPI)
 
 Usage:
     python sec_workflow.py NVDA
@@ -24,7 +24,7 @@ USER_AGENT = "sunjialin sunjialin@terraquant.cn"
 BASE_DIR = Path(__file__).resolve().parent
 
 # Foreign private issuers file 20-F / 6-K instead of 10-K / 10-Q
-FOREIGN_TICKERS = {"TSM"}
+FOREIGN_TICKERS = {"TSM", "ARM", "ASML", "ASX", "STM", "UMC", "TSEM", "GFS", "NOK"}
 
 FILING_SETS: dict[str, tuple] = {
     "us":      (FilingType.FILING_10Q, FilingType.FILING_10K),

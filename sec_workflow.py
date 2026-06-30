@@ -1,12 +1,13 @@
 """Generic SEC filing workflow — download filings for any ticker.
 
-US issuers (AMD, NVDA):  10-Q + 10-K
+US issuers (AMD, NVDA, MU):  10-Q + 10-K
 Foreign issuers (TSM):   6-K + 20-F  (ADR / FPI)
 
 Usage:
     python sec_workflow.py NVDA
+    python sec_workflow.py MU
     python sec_workflow.py TSM
-    python sec_workflow.py AMD NVDA TSM
+    python sec_workflow.py AMD NVDA MU TSM
     python sec_workflow.py TSM --no-interim   # skip 6-K (700+ files)
 """
 

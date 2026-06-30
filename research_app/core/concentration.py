@@ -27,10 +27,21 @@ KNOWN_SEGMENTS: dict[str, list[str]] = {
     "AMD":  ["Data Center", "Client", "Gaming", "Embedded"],
     # FY2024+ (post-reorganisation): two reportable segments
     "NVDA": ["Compute & Networking", "Graphics"],
+    "MU":   ["CMBU", "CDBU", "MCBU", "AEBU"],
     "INTC": ["CCG", "DCG", "IOTG", "Mobileye", "PSG", "NEX", "Intel Foundry"],
     "QCOM": ["QCT", "QTL"],
     "AVGO": ["Semiconductor Solutions", "Infrastructure Software"],
     "TSM":  ["Wafer", "Mask", "Others"],  # legacy; platform breakdown parsed separately if needed
+}
+
+# Optional friendly labels for segment charts/tables
+SEGMENT_DISPLAY: dict[str, dict[str, str]] = {
+    "MU": {
+        "CMBU": "Cloud Memory (CMBU)",
+        "CDBU": "Core Data Center (CDBU)",
+        "MCBU": "Mobile & Client (MCBU)",
+        "AEBU": "Automotive & Embedded (AEBU)",
+    },
 }
 
 
@@ -105,17 +116,29 @@ def _parse_segments(text: str, segments: list[str]) -> pd.DataFrame:
     rows = []
     seen: set[str] = set()
     for seg in segments:
-        # Match: "Data Center   $ 16,635   $ 12,579   $ 6,496"
-        # or    "Data Center     16,635    12,579     6,496"
-        pat = re.compile(
-            rf'{re.escape(seg)}\s+\$?\s*([\d,]+)\s+\$?\s*([\d,]+)\s+\$?\s*([\d,]+)',
-            re.IGNORECASE,
-        )
-        m = pat.search(text)
-        if m and seg not in seen:
+        patterns = [
+            # Standard: "Data Center   $ 16,635   $ 12,579   $ 6,496"
+            re.compile(
+                rf'{re.escape(seg)}\s+\$?\s*([\d,]+)\s+\$?\s*([\d,]+)\s+\$?\s*([\d,]+)',
+                re.IGNORECASE,
+            ),
+            # Micron-style: "CMBU $ 13,524 36 % $ 3,792 15 % $ 1,872 12 %"
+            re.compile(
+                rf'{re.escape(seg)}\s+\$?\s*([\d,]+)(?:\s+\d+(?:\.\d+)?\s*%)'
+                rf'\s+\$?\s*([\d,]+)(?:\s+\d+(?:\.\d+)?\s*%)'
+                rf'\s+\$?\s*([\d,]+)',
+                re.IGNORECASE,
+            ),
+        ]
+        best_vals: list[int] | None = None
+        for pat in patterns:
+            for m in pat.finditer(text):
+                vals = [int(v.replace(",", "")) for v in m.groups()]
+                if best_vals is None or vals[0] > best_vals[0]:
+                    best_vals = vals
+        if best_vals and seg not in seen:
             seen.add(seg)
-            vals = [int(v.replace(",", "")) for v in m.groups()]
-            rows.append({"segment": seg, "fy0": vals[0], "fy1": vals[1], "fy2": vals[2]})
+            rows.append({"segment": seg, "fy0": best_vals[0], "fy1": best_vals[1], "fy2": best_vals[2]})
 
     return pd.DataFrame(rows) if rows else pd.DataFrame()
 
@@ -279,6 +302,10 @@ def get_concentration_data(
     text         = _extract_main_doc(raw_text)
     seg_names    = KNOWN_SEGMENTS.get(ticker.upper(), [])
     segments_df  = _parse_segments(text, seg_names) if seg_names else pd.DataFrame()
+    if not segments_df.empty:
+        labels = SEGMENT_DISPLAY.get(ticker.upper(), {})
+        if labels:
+            segments_df["segment"] = segments_df["segment"].map(lambda s: labels.get(s, s))
     fy_years     = _infer_fy_years(text)
     conc_list    = _parse_concentration(text)
     geo_df       = _parse_geo_revenue(text)

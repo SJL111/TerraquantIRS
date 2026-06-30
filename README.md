@@ -123,7 +123,7 @@ If you have **Futu OpenD** installed and running on `localhost:11111`, the app a
 | Segment revenue | SEC 10-K text parsing | Regex extraction from MD&A section |
 | Customer concentration | SEC 10-K text parsing | Extracted from risk factor disclosures |
 | Supply chain relationships | `supply_chain.json` | Manually curated, editable in-app |
-| 10-K filings (AMD) | SEC EDGAR download | Local files, gitignored |
+| 10-K / 10-Q filings (local) | `sec_workflow.py` | AMD, NVDA, MU (10-K/Q); TSM (20-F); gitignored |
 
 ---
 
@@ -135,6 +135,12 @@ If you have **Futu OpenD** installed and running on `localhost:11111`, the app a
 4. Add relationships using **"添加关系"** mode
 
 The supply chain JSON is updated automatically and persists across sessions.
+
+To download SEC filings locally for text mining / concentration analysis:
+
+```powershell
+python sec_workflow.py MU
+```
 
 ---
 
@@ -157,7 +163,7 @@ No server rental or environment configuration needed.
 | Company | Ticker | Role |
 |---|---|---|
 | TSMC | TSM | Primary foundry (N3/N4 process) |
-| Micron | MU | HBM3E / GDDR7 memory |
+| Micron | MU | HBM / DRAM / NAND — memory supplier (CMBU cloud & HBM) |
 | Amkor | AMKR | Advanced chip packaging |
 | ASML | ASML | EUV lithography (equipment) |
 | Applied Materials | AMAT | CVD/PVD deposition (equipment) |
